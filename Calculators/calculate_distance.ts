@@ -1,0 +1,11 @@
+
+export default function calculate_distance(user_lat: number, user_lon: number, distance_lat: number, distance_lon: number) {
+    const r= 6371;
+    const  p = Math.PI / 180;
+
+    const a = 0.5 - Math.cos((distance_lat - user_lat) * p) / 2
+                + Math.cos(user_lat * p) * Math.cos(distance_lat * p) *
+                (1 - Math.cos((distance_lon - user_lon) * p)) / 2;
+    
+    return 2 * r * Math.asin(Math.sqrt(a));
+}
