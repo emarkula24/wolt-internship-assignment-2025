@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Response } from "express"
 
 interface Ranges {
     min: number;
@@ -36,6 +35,7 @@ const getVenues = async (venueSlug: string) => {
         const staticData = staticResponse.data;
         const coordinates = staticData.venue_raw.location.coordinates;
 
+        
         const venueData: VenueData= {
             orderMinimumNoSurcharge,
             basePrice,
@@ -46,7 +46,9 @@ const getVenues = async (venueSlug: string) => {
         return venueData;
 
     } catch (error) {
-        return null;
+        if (error instanceof Error) {
+            throw new Error("Failed to get venue data: " + error.message)
+        }
     }
 }
 
@@ -126,7 +128,7 @@ const calculateDeliveryFee = (distanceRanges: Ranges[], basePrice: number, dista
             return total;
         }
         else if (distance >= range.min && distance < range.max || range.max === 0) {
-            return -1;
+            throw new Error("Delivery distance is too long")
         }
     }
 }

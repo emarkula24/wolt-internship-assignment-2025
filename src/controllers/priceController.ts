@@ -14,8 +14,8 @@ const getDeliveryOrderPrice = async (req: Request, res: Response) => {
         
         const venueData = await getVenues(userData.venueSlug)
 
-        if (venueData === null) {
-            throw new Error("Venue data not found");
+        if (venueData === undefined) {
+            throw new Error("Venue data is undefined");
         }
 
         smallOrderSurcharge = calculateSmallOrderSurcharge(venueData.orderMinimumNoSurcharge , userData.cartValue);
@@ -23,10 +23,6 @@ const getDeliveryOrderPrice = async (req: Request, res: Response) => {
 
 
         const fee = calculateDeliveryFee(venueData.distanceRanges, venueData.basePrice, distance) ?? 0;
-
-        if (fee === -1) {
-            throw new Error("Delivery distance is too long")
-        }
         
         totalPrice = fee + smallOrderSurcharge + userData.cartValue;
         const delivery = {
