@@ -10,19 +10,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { getVenues, calculateDistance, calculateSmallOrderSurcharge, calculateDeliveryFee, parseParameters } from "../services/venueService.js";
 const getDeliveryOrderPrice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    let totalPrice = 0;
-    let smallOrderSurcharge = 0;
-    let distance = 0;
-    const queryParams = req.query;
-    const userData = parseParameters({ query: queryParams });
     try {
+        let totalPrice = 0;
+        let smallOrderSurcharge = 0;
+        let distance = 0;
+        const queryParams = req.query;
+        const userData = parseParameters({ query: queryParams });
         const venueData = yield getVenues(userData.venueSlug);
-        if (!venueData) {
+        if (venueData === null) {
             throw new Error("Venue data not found");
         }
         smallOrderSurcharge = calculateSmallOrderSurcharge(venueData.orderMinimumNoSurcharge, userData.cartValue);
         distance = calculateDistance(userData.userLat, userData.userLon, venueData.coordinates[1], venueData.coordinates[0]);
-        const fee = (_a = calculateDeliveryFee(res, venueData.distanceRanges, venueData.basePrice, distance)) !== null && _a !== void 0 ? _a : 0;
+        const fee = (_a = calculateDeliveryFee(venueData.distanceRanges, venueData.basePrice, distance)) !== null && _a !== void 0 ? _a : 0;
+        if (fee === -1) {
+            throw new Error("Delivery distance is too long");
+        }
         totalPrice = fee + smallOrderSurcharge + userData.cartValue;
         const delivery = {
             "fee": fee,
@@ -36,7 +39,9 @@ const getDeliveryOrderPrice = (req, res) => __awaiter(void 0, void 0, void 0, fu
         });
     }
     catch (error) {
-        res.status(500).json({ error: "Failed to calculate order-price" });
+        if (error instanceof Error) {
+            res.status(400).json({ error: error.message });
+        }
     }
 });
 export { getDeliveryOrderPrice };

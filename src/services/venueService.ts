@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Response } from "express"
+
 interface Ranges {
     min: number;
     max: number;
@@ -7,8 +8,6 @@ interface Ranges {
     b: number;
     flag: null;
 }
-
-
 interface VenueData {
     orderMinimumNoSurcharge: number;
     basePrice: number;
@@ -16,9 +15,13 @@ interface VenueData {
     coordinates: number[];
 }
 
-const getVenues = async (venue_slug: string) => {
-    const dynamicBaseUrl = `https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues/${venue_slug}/dynamic`;
-    const staticBaseUrl = `https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues/${venue_slug}/static`;
+const getVenues = async (venueSlug: string) => {
+
+    if (!venueSlug) {
+        throw new Error ("Invalid venue_slug")
+    }
+    const dynamicBaseUrl = `https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues/${venueSlug}/dynamic`;
+    const staticBaseUrl = `https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues/${venueSlug}/static`;
     try {
         const [dynamicResponse, staticResponse] = await Promise.all([
             axios.get(dynamicBaseUrl),
@@ -43,12 +46,20 @@ const getVenues = async (venue_slug: string) => {
         return venueData;
 
     } catch (error) {
-        console.error("Error fetching venue data", error)
+        return null;
     }
 }
 
 
 const calculateDistance = (userLat: number, userLon: number, venueLat: number, venueLon: number) => {
+
+    if (!userLat) {
+        throw new Error("Invalid user_lat");
+    }
+    
+    if (!userLon) {
+        throw new Error("Invalid user_lon");
+    }
 
     const R = 6371e3; 
     const toRadians = (deg: number) => deg * Math.PI / 180;
@@ -60,11 +71,14 @@ const calculateDistance = (userLat: number, userLon: number, venueLat: number, v
 
     const a = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
+    
     return Math.round(R * c);
 }
 
 const calculateSmallOrderSurcharge = (orderMinimumNoSurcharge: number, cartValue: number) => {
+    if (!cartValue) {
+        throw new Error("Invalid cart_value")
+    }
     let smallOrderSurcharge = orderMinimumNoSurcharge - cartValue;
     if(smallOrderSurcharge < 0) {
         smallOrderSurcharge = 0;
@@ -104,16 +118,15 @@ const parseParameters = (params: { query: DopcQueryParams }) => {
     return userData;
 }
 
-const calculateDeliveryFee = (res: Response, distanceRanges: Ranges[], basePrice: number, distance: number) => {
+const calculateDeliveryFee = (distanceRanges: Ranges[], basePrice: number, distance: number) => {
     let total = 0;
     for (const range of distanceRanges) {
         if (distance >= range.min && distance <= range.max) {
             total = basePrice + range.a + (range.b * distance / 10);
             return total;
         }
-        else if (distance >= range.min && range.max === 0) {
-            res.status(400).json({error: "Delivery distance is too long"})
-            return 0;
+        else if (distance >= range.min && distance < range.max || range.max === 0) {
+            return -1;
         }
     }
 }

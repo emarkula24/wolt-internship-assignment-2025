@@ -1,17 +1,19 @@
 import { expect } from "chai"
+import exp from "constants"
 
 
 const base_url = "http://localhost:8000"
 
-describe("GET /api/v1/delivery-order-price", () => {
-    it ("should return expected response with correct values", async() => {
-        const venue_slug = "home-assignment-venue-helsinki"
-        const cart_value = "1000"
-        const user_lat = 60.17094
-        const user_lon = 24.93087
+const venueSlug = "home-assignment-venue-helsinki"
+const cartValue = "1000"
+const userLat = 60.17094
+const userLon = 24.93087
 
+describe("GET /api/v1/delivery-order-price", () => {
+    it ("should return expected response with example parameters", async () => {
+        //"expected response" is the one described in the example of the application specifications.
         const response = await fetch(`
-                ${base_url}/api/v1/delivery-order-price?venue_slug=${venue_slug}&cart_value=${cart_value}&user_lat=${user_lat}&user_lon=${user_lon}
+                ${base_url}/api/v1/delivery-order-price?venue_slug=${venueSlug}&cart_value=${cartValue}&user_lat=${userLat}&user_lon=${userLon}
             `);
         if (!response.ok) {
             throw new Error()
@@ -26,5 +28,28 @@ describe("GET /api/v1/delivery-order-price", () => {
         expect(data.cart_value).to.equal(1000);
         expect(data.delivery.fee).to.equal(190);
         expect(data.delivery.distance).to.equal(177);
+    })
+
+    it("should return error if venue distance is too long", async () => {
+        const userLat = 60.22270244680721
+        const userLon = 24.860549295080748
+
+        const response = await fetch(`
+            ${base_url}/api/v1/delivery-order-price?venue_slug=${venueSlug}&cart_value=${cartValue}&user_lat=${userLat}&user_lon=${userLon}
+        `);
+
+        const data = await response.json()
+        expect(response.status).to.equal(400)
+        expect(data).to.have.property("error")
+        expect(data.error).to.equal("Delivery distance is too long")
+    })
+
+    it("should return error if a required parameter is not present", async () => {
+        const response = await fetch(`
+            ${base_url}/api/v1/delivery-order-price?venue_slug=${venueSlug}&cart_value=${cartValue}
+        `);
+        const data = await response.json()
+        expect(response.status).to.equal(400)
+        expect(data).to.have.property("error")
     })
 })
