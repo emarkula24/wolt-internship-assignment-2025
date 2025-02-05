@@ -1,5 +1,5 @@
 # Wolt Internship Assignment – API Endpoint for Distance & Pricing Calculations
-This repository contains a backend API endpoint developed as part of the Wolt internship assignment. It provides an API endpoint that retrieves data from multiple internal APIs, performs coordinate-based distance calculations, and computes pricing based on predefined factors. The detailed specifications for this endpoint are found [here](https://github.com/emarkula24/backend-internship-2025). It was made with Typescript using Node.js
+This repository contains a backend API endpoint developed as part of the Wolt internship assignment. It provides an API endpoint that retrieves data from multiple internal APIs, performs coordinate-based distance calculations, and computes pricing based on predefined factors. The detailed specifications for this endpoint are found [here](https://github.com/emarkula24/backend-internship-2025).
 
 **Note:** The internal APIs provided for this assignment may no longer be functional.
 # Requirements
