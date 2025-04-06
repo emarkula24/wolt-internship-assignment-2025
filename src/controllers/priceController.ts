@@ -1,8 +1,8 @@
 import { getVenues, calculateDistance, calculateSmallOrderSurcharge, calculateDeliveryFee, parseParameters , DopcQueryParams} from "../services/venueService.js";
-import {Request, Response} from "express"
+import { Request, Response, NextFunction } from "express"
 
 
-const getDeliveryOrderPrice = async (req: Request, res: Response) => {
+const getDeliveryOrderPrice = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         let totalPrice: number = 0;
@@ -38,7 +38,7 @@ const getDeliveryOrderPrice = async (req: Request, res: Response) => {
 
     } catch (error) {
         if (error instanceof Error) {
-             res.status(400).json({error: error.message})
+            next(error)
         }   
     }
 }

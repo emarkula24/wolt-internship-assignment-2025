@@ -55,11 +55,11 @@ const getVenues = async (venueSlug: string) => {
 
 const calculateDistance = (userLat: number, userLon: number, venueLat: number, venueLon: number) => {
 
-    if (!userLat) {
+    if (isNaN(userLat)) {
         throw new Error("Invalid user_lat");
     }
     
-    if (!userLon) {
+    if (isNaN(userLon)) {
         throw new Error("Invalid user_lon");
     }
 
@@ -78,7 +78,8 @@ const calculateDistance = (userLat: number, userLon: number, venueLat: number, v
 }
 
 const calculateSmallOrderSurcharge = (orderMinimumNoSurcharge: number, cartValue: number) => {
-    if (!cartValue) {
+    if (isNaN(cartValue) || cartValue < 0) {
+        console.log("cart")
         throw new Error("Invalid cart_value")
     }
     let smallOrderSurcharge = orderMinimumNoSurcharge - cartValue;

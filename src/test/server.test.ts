@@ -40,8 +40,8 @@ describe("GET /api/v1/delivery-order-price", () => {
 
         const data = await response.json()
         expect(response.status).to.equal(400)
-        expect(data).to.have.property("error")
-        expect(data.error).to.equal("Delivery distance is too long")
+        expect(data).to.have.property("message")
+        expect(data.message).to.equal("Delivery distance is too long")
     })
 
     it("should return error if a required parameter is not present", async () => {
@@ -50,6 +50,7 @@ describe("GET /api/v1/delivery-order-price", () => {
         `);
         const data = await response.json()
         expect(response.status).to.equal(400)
-        expect(data).to.have.property("error")
+        expect(data).to.have.property("message")
     })
+
 })

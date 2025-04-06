@@ -1,7 +1,10 @@
 import Router from "express"
 import { getDeliveryOrderPrice } from "../controllers/priceController.js"
-const router = Router()
+import { errorHandler } from "../middlewares/errorHandler.js"
+const priceRouter = Router()
 
-router.get("/", getDeliveryOrderPrice)
+priceRouter.get("/", getDeliveryOrderPrice)
 
-export default router;
+
+
+export default priceRouter;
