@@ -1,23 +1,10 @@
 import axios from "axios";
-
-interface Ranges {
-    min: number;
-    max: number;
-    a: number;
-    b: number;
-    flag: null;
-}
-interface VenueData {
-    orderMinimumNoSurcharge: number;
-    basePrice: number;
-    distanceRanges: Ranges[];
-    coordinates: number[];
-}
+import { DopcQueryParams, ParsedDopcParams, Ranges, VenueData } from "../types/types.js";
 
 const getVenues = async (venueSlug: string) => {
 
     if (!venueSlug) {
-        throw new Error ("Invalid venue_slug")
+        throw new Error ("invalid venue_slug")
     }
     const dynamicBaseUrl = `https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues/${venueSlug}/dynamic`;
     const staticBaseUrl = `https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues/${venueSlug}/static`;
@@ -47,20 +34,19 @@ const getVenues = async (venueSlug: string) => {
 
     } catch (error) {
         if (error instanceof Error) {
-            throw new Error("Failed to get venue data: " + error.message)
+            throw new Error("failed to get venue data: " + error.message)
         }
     }
 }
 
-
 const calculateDistance = (userLat: number, userLon: number, venueLat: number, venueLon: number) => {
 
     if (isNaN(userLat)) {
-        throw new Error("Invalid user_lat");
+        throw new Error("invalid user_lat");
     }
     
     if (isNaN(userLon)) {
-        throw new Error("Invalid user_lon");
+        throw new Error("invalid user_lon");
     }
 
     const R = 6371e3; 
@@ -79,28 +65,13 @@ const calculateDistance = (userLat: number, userLon: number, venueLat: number, v
 
 const calculateSmallOrderSurcharge = (orderMinimumNoSurcharge: number, cartValue: number) => {
     if (isNaN(cartValue) || cartValue < 0) {
-        console.log("cart")
-        throw new Error("Invalid cart_value")
+        throw new Error("invalid_cart_value")
     }
     let smallOrderSurcharge = orderMinimumNoSurcharge - cartValue;
     if(smallOrderSurcharge < 0) {
         smallOrderSurcharge = 0;
     }
     return smallOrderSurcharge;
-}
-
-interface DopcQueryParams {
-    venue_slug: string;
-    cart_value: string; 
-    user_lat: string;
-    user_lon: string;
-}
-
-interface ParsedDopcParams {
-    venueSlug: string;
-    cartValue: number;
-    userLat: number;
-    userLon: number;
 }
 
 const parseParameters = (params: { query: DopcQueryParams }) => {
@@ -124,12 +95,12 @@ const parseParameters = (params: { query: DopcQueryParams }) => {
 const calculateDeliveryFee = (distanceRanges: Ranges[], basePrice: number, distance: number) => {
     let total = 0;
     for (const range of distanceRanges) {
-        if (distance >= range.min && distance <= range.max) {
+        if (distance >= range.min && distance < range.max) {
             total = basePrice + range.a + (range.b * distance / 10);
             return total;
         }
-        else if (distance >= range.min && distance < range.max || range.max === 0) {
-            throw new Error("Delivery distance is too long")
+        else if (distance >= range.min && distance <= range.max || range.max === 0) {
+            throw new Error("delivery distance is too long")
         }
     }
 }

@@ -41,16 +41,26 @@ describe("GET /api/v1/delivery-order-price", () => {
         const data = await response.json()
         expect(response.status).to.equal(400)
         expect(data).to.have.property("message")
-        expect(data.message).to.equal("Delivery distance is too long")
+        expect(data.message).to.equal("delivery distance is too long")
     })
 
-    it("should return error if a required parameter is not present", async () => {
-        const response = await fetch(`
-            ${base_url}/api/v1/delivery-order-price?venue_slug=${venueSlug}&cart_value=${cartValue}
+    it("should return error 400 if user_lon is not present in query parameters", async () => {
+        const  response = await fetch(`
+            ${base_url}/api/v1/delivery-order-price?venue_slug=${venueSlug}&cart_value=${cartValue}&user_lat=${userLat}
         `);
         const data = await response.json()
         expect(response.status).to.equal(400)
         expect(data).to.have.property("message")
+        expect(data.message).to.equal("invalid user_lon")
+    })
+    it("should return error 400 if user_lat is not present in query parameters", async () => {
+            const response = await fetch(`
+            ${base_url}/api/v1/delivery-order-price?venue_slug=${venueSlug}&cart_value=${cartValue}&user_lon=${userLon}
+        `);
+        const data = await response.json()
+        expect(response.status).to.equal(400)
+        expect(data).to.have.property("message")
+        expect(data.message).to.equal("invalid user_lat")
     })
 
 })

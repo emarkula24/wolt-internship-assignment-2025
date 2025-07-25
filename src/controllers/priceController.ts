@@ -15,7 +15,7 @@ const getDeliveryOrderPrice = async (req: Request, res: Response, next: NextFunc
         const venueData = await getVenues(userData.venueSlug)
 
         if (venueData === undefined) {
-            throw new Error("Venue data is undefined");
+            throw new Error("venue data is undefined");
         }
 
         smallOrderSurcharge = calculateSmallOrderSurcharge(venueData.orderMinimumNoSurcharge , userData.cartValue);

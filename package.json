@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./built/src/test/server.test.js",
+    "test": "tsc && mocha ./built/src/test/",
     "build": "tsc",
     "start": "node ./built/src/server.js",
     "dev": "tsc && node ./built/src/server.js"
